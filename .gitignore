@@ -5,13 +5,14 @@
 
 # Logs
 logs
+CLAUDE.md
 *.log
 npm-debug.log*
 pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
-
+/.claude
 # OS
 .DS_Store
 
