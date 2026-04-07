@@ -1,8 +1,12 @@
 import { Module } from '@nestjs/common';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CampaignsModule } from './campaigns/campaigns.module';
 import { SchedulesModule } from './schedules/schedules.module';
+import { AppLoggerService } from './shared/logger/app-logger.service';
+import { HttpLoggingInterceptor } from './shared/interceptors/http-logging.interceptor';
+import { AllExceptionsFilter } from './shared/filters/all-exceptions.filter';
 
 @Module({
   imports: [
@@ -19,6 +23,20 @@ import { SchedulesModule } from './schedules/schedules.module';
     }),
     CampaignsModule,
     SchedulesModule,
+  ],
+  providers: [
+    {
+      provide: AppLoggerService,
+      useFactory: () => new AppLoggerService('campaign-service'),
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: HttpLoggingInterceptor,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
   ],
 })
 export class AppModule {}
