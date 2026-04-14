@@ -1,11 +1,18 @@
 import { PartialType } from '@nestjs/swagger';
-import { CreateCampaignDto } from './create-campaign.dto';
-import { IsBoolean, IsOptional } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, Min } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { CreateCampaignDto } from './create-campaign.dto';
+import { CampaignStatus } from '../entities/campaign.entity';
 
 export class UpdateCampaignDto extends PartialType(CreateCampaignDto) {
-  @ApiPropertyOptional({ example: true })
-  @IsBoolean()
+  @ApiPropertyOptional({ enum: CampaignStatus })
+  @IsEnum(CampaignStatus)
   @IsOptional()
-  isActive?: boolean;
+  status?: CampaignStatus;
+
+  @ApiPropertyOptional({ example: 42 })
+  @IsInt()
+  @Min(0)
+  @IsOptional()
+  currentDonations?: number;
 }
