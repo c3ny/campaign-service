@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindManyOptions } from 'typeorm';
+import { Repository, FindManyOptions, LessThan } from 'typeorm';
 import { Campaign, CampaignStatus } from './entities/campaign.entity';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
@@ -27,7 +27,21 @@ export class CampaignsService {
     private readonly campaignRepo: Repository<Campaign>,
   ) {}
 
+  /**
+   * Auto-completes ACTIVE campaigns whose endDate has passed.
+   * Idempotent: runs on every read so stale statuses get corrected lazily.
+   */
+  private async autoCompleteExpired(): Promise<void> {
+    const today = new Date().toISOString().slice(0, 10);
+    await this.campaignRepo.update(
+      { status: CampaignStatus.ACTIVE, endDate: LessThan(today) },
+      { status: CampaignStatus.COMPLETED },
+    );
+  }
+
   async findAll(options: ListCampaignsOptions = {}): Promise<PaginatedCampaigns> {
+    await this.autoCompleteExpired();
+
     const { status, organizerId, bloodType, page = 1, limit = 12 } = options;
 
     const where: FindManyOptions<Campaign>['where'] = {};
@@ -47,6 +61,7 @@ export class CampaignsService {
   }
 
   async findOne(id: string): Promise<Campaign> {
+    await this.autoCompleteExpired();
     const campaign = await this.campaignRepo.findOneBy({ id });
     if (!campaign) throw new NotFoundException(`Campanha ${id} não encontrada`);
     return campaign;
@@ -71,6 +86,17 @@ export class CampaignsService {
 
     if (campaign.organizerId !== requesterId) {
       throw new ForbiddenException('Sem permissão para editar esta campanha');
+    }
+
+    if (dto.status && dto.status !== campaign.status) {
+      const isInactive =
+        campaign.status === CampaignStatus.COMPLETED ||
+        campaign.status === CampaignStatus.CANCELLED;
+      if (isInactive) {
+        throw new BadRequestException(
+          'Campanhas concluídas ou canceladas não podem ter o status alterado',
+        );
+      }
     }
 
     const updated = this.campaignRepo.merge(campaign, dto);
