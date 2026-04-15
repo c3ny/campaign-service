@@ -120,23 +120,20 @@ jobs:
             echo "Versão já está ${{ env.new_version }}, pulando npm version"
           fi
 
-      - name: Commit e push
+      - name: Criar e push da tag (apenas tag, sem commit — main eh protegida)
         if: github.event_name == 'push'
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
-          git add package.json
-
-          if git diff --staged --quiet; then
-            echo "Nada para commitar, pulando..."
-          else
-            git commit -m "chore(release): version ${{ env.new_version }}"
-          fi
 
           if ! git tag | grep -q "v${{ env.new_version }}"; then
             git tag v${{ env.new_version }}
+            git push origin "v${{ env.new_version }}"
+          else
+            echo "Tag v${{ env.new_version }} ja existe, pulando"
           fi
 
-          git push origin HEAD:${{ github.ref_name }} --tags
+          # O bump de package.json nao eh commitado — branch main exige PR.
+          # Para atualizar a versao no package.json, faca manualmente em PR.
