@@ -7,6 +7,7 @@ import { SchedulesModule } from './schedules/schedules.module';
 import { AppLoggerService } from './shared/logger/app-logger.service';
 import { HttpLoggingInterceptor } from './shared/interceptors/http-logging.interceptor';
 import { AllExceptionsFilter } from './shared/filters/all-exceptions.filter';
+import { CreateCampaignsTable1744588800000 } from './database/migrations/1744588800000-CreateCampaignsTable';
 
 @Module({
   imports: [
@@ -19,7 +20,9 @@ import { AllExceptionsFilter } from './shared/filters/all-exceptions.filter';
       password: process.env.DB_PASS || 'postgres',
       database: process.env.DB_NAME || 'campaign_db',
       autoLoadEntities: true,
-      synchronize: process.env.NODE_ENV !== 'production',
+      synchronize: false,
+      migrations: [CreateCampaignsTable1744588800000],
+      migrationsRun: true,
     }),
     CampaignsModule,
     SchedulesModule,
