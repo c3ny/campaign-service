@@ -45,19 +45,25 @@ export class CampaignsController {
   @ApiQuery({ name: 'bloodType', required: false })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'sort', required: false, enum: ['startDate', 'createdAt'] })
   findAll(
     @Query('status') status?: CampaignStatus,
     @Query('organizerId') organizerId?: string,
     @Query('bloodType') bloodType?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query('sort') sort?: string,
   ) {
+    const normalizedSort: 'startDate' | 'createdAt' | undefined =
+      sort === 'startDate' || sort === 'createdAt' ? sort : undefined;
+
     return this.campaignsService.findAll({
       status,
       organizerId,
       bloodType,
       page: page ? parseInt(page, 10) : 1,
       limit: limit ? parseInt(limit, 10) : 12,
+      sort: normalizedSort,
     });
   }
 

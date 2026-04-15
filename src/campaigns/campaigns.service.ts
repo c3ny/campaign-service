@@ -5,12 +5,15 @@ import { Campaign, CampaignStatus } from './entities/campaign.entity';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
 
+export type CampaignSort = 'startDate' | 'createdAt';
+
 export interface ListCampaignsOptions {
   status?: CampaignStatus;
   organizerId?: string;
   bloodType?: string;
   page?: number;
   limit?: number;
+  sort?: CampaignSort;
 }
 
 export interface PaginatedCampaigns {
@@ -42,7 +45,7 @@ export class CampaignsService {
   async findAll(options: ListCampaignsOptions = {}): Promise<PaginatedCampaigns> {
     await this.autoCompleteExpired();
 
-    const { status, organizerId, bloodType, page = 1, limit = 12 } = options;
+    const { status, organizerId, bloodType, page = 1, limit = 12, sort = 'createdAt' } = options;
 
     const where: FindManyOptions<Campaign>['where'] = {};
 
@@ -50,9 +53,14 @@ export class CampaignsService {
     if (organizerId) where.organizerId = organizerId;
     if (bloodType) where.bloodType = bloodType;
 
+    const order: FindManyOptions<Campaign>['order'] =
+      sort === 'startDate'
+        ? { startDate: 'ASC', createdAt: 'DESC' }
+        : { createdAt: 'DESC' };
+
     const [data, total] = await this.campaignRepo.findAndCount({
       where,
-      order: { createdAt: 'DESC' },
+      order,
       skip: (page - 1) * limit,
       take: limit,
     });
