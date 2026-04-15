@@ -23,6 +23,11 @@ import { CreateCampaignsTable1744588800000 } from './database/migrations/1744588
       synchronize: false,
       migrations: [CreateCampaignsTable1744588800000],
       migrationsRun: true,
+      // Heroku Postgres exige SSL. Dev local (DATABASE_SSL=false) usa conexao limpa.
+      ssl:
+        process.env.DATABASE_SSL === 'false'
+          ? false
+          : { rejectUnauthorized: false },
     }),
     CampaignsModule,
     SchedulesModule,
