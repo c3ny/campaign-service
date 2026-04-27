@@ -8,6 +8,7 @@ import { AppLoggerService } from './shared/logger/app-logger.service';
 import { HttpLoggingInterceptor } from './shared/interceptors/http-logging.interceptor';
 import { AllExceptionsFilter } from './shared/filters/all-exceptions.filter';
 import { CreateCampaignsTable1744588800000 } from './database/migrations/1744588800000-CreateCampaignsTable';
+import { AlignOrganizerIdWithEntityCompanyId1745800000000 } from './database/migrations/1745800000000-AlignOrganizerIdWithEntityCompanyId';
 
 @Module({
   imports: [
@@ -21,7 +22,10 @@ import { CreateCampaignsTable1744588800000 } from './database/migrations/1744588
       database: process.env.DB_NAME || 'campaign_db',
       autoLoadEntities: true,
       synchronize: false,
-      migrations: [CreateCampaignsTable1744588800000],
+      migrations: [
+        CreateCampaignsTable1744588800000,
+        AlignOrganizerIdWithEntityCompanyId1745800000000,
+      ],
       migrationsRun: true,
       // Heroku Postgres exige SSL. Dev local (DATABASE_SSL=false) usa conexao limpa.
       ssl:

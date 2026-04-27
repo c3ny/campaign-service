@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm';
 import { Campaign } from '../campaigns/entities/campaign.entity';
 import { CreateCampaignsTable1744588800000 } from './migrations/1744588800000-CreateCampaignsTable';
+import { AlignOrganizerIdWithEntityCompanyId1745800000000 } from './migrations/1745800000000-AlignOrganizerIdWithEntityCompanyId';
 
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -13,6 +14,9 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASS || 'postgres',
   database: process.env.DB_NAME || 'campaign_db',
   entities: [Campaign],
-  migrations: [CreateCampaignsTable1744588800000],
+  migrations: [
+    CreateCampaignsTable1744588800000,
+    AlignOrganizerIdWithEntityCompanyId1745800000000,
+  ],
   migrationsTableName: 'migrations',
 });

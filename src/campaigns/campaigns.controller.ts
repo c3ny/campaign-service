@@ -90,7 +90,10 @@ export class CampaignsController {
     @Body() dto: UpdateCampaignDto,
     @Request() req: AuthenticatedRequest,
   ) {
-    return this.campaignsService.update(id, dto, req.user.userId);
+    // organizerId is the entity company.id; fall back to userId for legacy
+    // tokens issued before users-service started populating companyId.
+    const requesterId = req.user.companyId ?? req.user.userId;
+    return this.campaignsService.update(id, dto, requesterId);
   }
 
   @Delete(':id')
@@ -100,6 +103,7 @@ export class CampaignsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Request() req: AuthenticatedRequest,
   ) {
-    return this.campaignsService.remove(id, req.user.userId);
+    const requesterId = req.user.companyId ?? req.user.userId;
+    return this.campaignsService.remove(id, requesterId);
   }
 }
