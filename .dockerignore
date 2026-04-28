@@ -1,0 +1,37 @@
+# Compiled output — sempre regenerado pelo `npm run build` no stage builder.
+# Sem isso, um dist/ velho local é copiado e pode mascarar mudanças no source.
+dist/
+
+# Dependências — reinstaladas no stage builder via `npm ci`.
+node_modules/
+
+# Secrets — environment é injetado pelo docker-compose, não precisa do .env do host.
+.env
+.env.local
+.env.*.local
+
+# Git e CI
+.git/
+.gitignore
+.github/
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+
+# Logs e caches
+npm-debug.log*
+.npm/
+coverage/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentação que não precisa entrar na imagem
+README.md
+CLAUDE.md
+*.md
+docs/
